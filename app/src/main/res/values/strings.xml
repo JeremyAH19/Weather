@@ -2,4 +2,6 @@
     <string name="app_name">Weather</string>
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
+    <string name="temperature">Temperature: %s</string>
+    <string name="apparent_temperature">Feels like: %s</string>
 </resources>
