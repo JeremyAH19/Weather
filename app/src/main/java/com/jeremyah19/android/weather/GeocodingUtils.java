@@ -22,14 +22,13 @@ public class GeocodingUtils {
     public static final String BUNDLE_KEY_LONGITUDE = "longitude";
 
     private static final String API_DOMAIN = "https://maps.googleapis.com/maps/api/geocode/json";
-    private static final String API_KEY = "AIzaSyCT-IQj9wSSKEA950CNqAymSDQVLzt4I9c";
 
     public static Bundle getLocationInfo(String address) {
         Bundle info = new Bundle();
         Uri uri = Uri.parse(API_DOMAIN)
                 .buildUpon()
                 .appendQueryParameter("address", address)
-                .appendQueryParameter("key", API_KEY)
+                .appendQueryParameter("key", ApiKeys.GEOCODING_API_KEY)
                 .build();
         try {
             JSONObject jsonObject = new JSONObject(new String(getUrlBytes(uri.toString())));

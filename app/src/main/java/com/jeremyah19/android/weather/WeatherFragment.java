@@ -3,6 +3,7 @@ package com.jeremyah19.android.weather;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +12,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class WeatherFragment extends Fragment {
 
@@ -22,10 +22,7 @@ public class WeatherFragment extends Fragment {
 
     private String mCityName;
 
-    private TextView mCityTextView;
-    private TextView mSummaryTextView;
-    private TextView mTemperatureTextView;
-    private TextView mApparentTemperatureTextView;
+    private CurrentWeatherView mCurrentWeatherView;
 
     public static WeatherFragment newInstance() {
         return new WeatherFragment();
@@ -44,11 +41,8 @@ public class WeatherFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_weather, container, false);
 
-        mCityTextView = (TextView) v.findViewById(R.id.location_city);
-        mSummaryTextView = (TextView) v.findViewById(R.id.currently_summary);
-        mTemperatureTextView = (TextView) v.findViewById(R.id.currently_temperature);
-        mApparentTemperatureTextView =
-                (TextView) v.findViewById(R.id.currently_apparent_temperature);
+        mCurrentWeatherView = (CurrentWeatherView) v.findViewById(R.id.current_weather_view);
+        mCurrentWeatherView.setVisibility(View.INVISIBLE);
 
         return v;
 
@@ -93,7 +87,9 @@ public class WeatherFragment extends Fragment {
             mLatitude = info.getDouble(GeocodingUtils.BUNDLE_KEY_LATITUDE);
             mLongitude = info.getDouble(GeocodingUtils.BUNDLE_KEY_LONGITUDE);
 
-            mCityTextView.setText(mCityName);
+            ((AppCompatActivity) getActivity())
+                    .getSupportActionBar()
+                    .setTitle(mCityName);
 
             new FetchWeatherTask().execute(mLatitude, mLongitude, 0.0);
 
@@ -103,26 +99,79 @@ public class WeatherFragment extends Fragment {
         }
     }
 
-    private class FetchWeatherTask extends AsyncTask<Double, Void, CurrentlyForecast> {
+    private class FetchWeatherTask extends AsyncTask<Double, Void, ForecastInfo> {
         @Override
-        protected CurrentlyForecast doInBackground(Double... params) {
-            return (CurrentlyForecast)ForecastApiUtils.getForecast(params[0], params[1], params[2]);
+        protected ForecastInfo doInBackground(Double... params) {
+            return ForecastApiUtils.getForecastInfo(params[0], params[1]);
 
         }
 
         @Override
-        protected void onPostExecute(CurrentlyForecast forecast) {
-            mSummaryTextView.setText(forecast.getSummary());
-            mTemperatureTextView.setText(
-                    getString(R.string.temperature, forecast.getTemperature()));
-            mApparentTemperatureTextView.setText(
-                    getString(R.string.apparent_temperature, forecast.getApparentTemperature()));
+        protected void onPostExecute(ForecastInfo forecastInfo) {
+            mCurrentWeatherView.setVisibility(View.VISIBLE);
 
-            mCityTextView.setText(mCityName);
+            Log.d(TAG, forecastInfo.getIcon(ForecastInfo.CURRENTLY));
+            switch(forecastInfo.getIcon(ForecastInfo.CURRENTLY)) {
+                case "clear-day":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_clear_day);
+                    Log.d(TAG, "clear-day");
+                    break;
+                case "clear-night":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_clear_night);
+                    Log.d(TAG, "clear_night");
+                    break;
+                case "rain":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_rain);
+                    Log.d(TAG, "rain");
+                    break;
+                case "snow":
+                case "hail":
+                case "sleet":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_snow);
+                    Log.d(TAG, "snow");
+                    break;
+                case "wind":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_wind);
+                    Log.d(TAG, "wind");
+                    break;
+                case "fog":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_fog);
+                    Log.d(TAG, "fog");
+                    break;
+                case "cloudy":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_cloudy);
+                    Log.d(TAG, "cloudy");
+                    break;
+                case "partly-cloudy-day":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_partly_cloudy_day);
+                    Log.d(TAG, "partly-cloudy-day");
+                    break;
+                case "partly-cloudy-night":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_partly_cloudy_night);
+                    Log.d(TAG, "partly-cloudy-night");
+                    break;
+                case "thunderstorm":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_thunderstorm);
+                    Log.d(TAG, "thunderstorm");
+                    break;
+                case "tornado":
+                    mCurrentWeatherView.setIconSrc(R.drawable.ic_tornado);
+                    Log.d(TAG, "tornado");
+                    break;
+            }
 
-            Log.i(TAG, "City: " + mCityName);
-            Log.i(TAG, "Latitude: " + mLatitude);
-            Log.i(TAG, "Longitude: " + mLongitude);
+            mCurrentWeatherView.setSummaryText(forecastInfo.getSummary(ForecastInfo.CURRENTLY));
+            mCurrentWeatherView.setTemperatureText(getString(
+                    R.string.temperature,
+                    forecastInfo.getCurrentlyTemperature()));
+
+            mCurrentWeatherView.setApparentTemperatureText(getString(
+                    R.string.apparent_temperature,
+                    forecastInfo.getCurrentlyApparentTemperature()));
+
+            mCurrentWeatherView.setHumidityText(getString(
+                    R.string.humidity,
+                    forecastInfo.getCurrentlyHumidity() * 100));
         }
     }
 }

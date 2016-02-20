@@ -1,55 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="com.jeremyah19.android.weather.WeatherActivity">
 
-    <RelativeLayout
+    <com.jeremyah19.android.weather.CurrentWeatherView
+        android:id="@+id/current_weather_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/location_city"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        tools:text="City"/>
-
-    <TextView
-        android:id="@+id/location_state_country"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/location_city"
-        android:textSize="24sp"
-        tools:text="State/Country"/>
-
-    <TextView
-        android:id="@+id/currently_summary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/location_state_country"
-        android:textSize="24sp"
-        tools:text="Summary"/>
-
-    <TextView
-        android:id="@+id/currently_temperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/currently_summary"
-        android:textSize="24sp"
-        tools:text="Temperature"/>
-
-    <TextView
-        android:id="@+id/currently_apparent_temperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/currently_temperature"
-        android:textSize="24sp"
-        tools:text="Apparent Temperature"/>
-
-    </RelativeLayout>
+        android:layout_height="match_parent"
+        tools:summaryText="Cloudy"/>
 
 </android.support.design.widget.CoordinatorLayout>
