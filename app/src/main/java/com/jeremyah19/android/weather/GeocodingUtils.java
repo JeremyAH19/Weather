@@ -1,9 +1,9 @@
 package com.jeremyah19.android.weather;
 
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,37 +17,42 @@ import java.net.URL;
 public class GeocodingUtils {
     public static final String TAG = "GeocodingUtils";
 
-    public static final String BUNDLE_KEY_CITY = "city";
-    public static final String BUNDLE_KEY_LATITUDE = "latitude";
-    public static final String BUNDLE_KEY_LONGITUDE = "longitude";
-
     private static final String API_DOMAIN = "https://maps.googleapis.com/maps/api/geocode/json";
 
-    public static Bundle getLocationInfo(String address) {
-        Bundle info = new Bundle();
-        Uri uri = Uri.parse(API_DOMAIN)
-                .buildUpon()
-                .appendQueryParameter("address", address)
-                .appendQueryParameter("key", ApiKeys.GEOCODING_API_KEY)
-                .build();
+    public static GeocodingInfo getGeocodingInfo(String address, double latitude, double longitude) {
+        GeocodingInfo geocodingInfo = GeocodingInfo.getInstance();
+        Uri uri;
+
+        if(address != null) {
+            uri = Uri.parse(API_DOMAIN)
+                    .buildUpon()
+                    .appendQueryParameter("address", address)
+                    .appendQueryParameter("key", ApiKeys.GEOCODING_API_KEY)
+                    .build();
+        } else {
+            uri = Uri.parse(API_DOMAIN)
+                    .buildUpon()
+                    .appendQueryParameter("latlng", latitude + "," + longitude)
+                    .appendQueryParameter("key", ApiKeys.GEOCODING_API_KEY)
+                    .build();
+        }
+        Log.d(TAG, "Geocoding JSON URL: " + uri.toString());
+
         try {
             JSONObject jsonObject = new JSONObject(new String(getUrlBytes(uri.toString())));
             Log.i(TAG, "Received JSON: " + jsonObject.toString());
 
             JSONObject resultsObject = jsonObject.getJSONArray("results").getJSONObject(0);
 
-            String city = resultsObject
-                    .getJSONArray("address_components")
-                    .getJSONObject(0)
-                    .getString("long_name");
+            JSONArray addressComponentsArray = resultsObject.getJSONArray("address_components");
 
             JSONObject locationObject = resultsObject
                     .getJSONObject("geometry")
                     .getJSONObject("location");
 
-            info.putString(BUNDLE_KEY_CITY, city);
-            info.putDouble(BUNDLE_KEY_LATITUDE, locationObject.getDouble("lat"));
-            info.putDouble(BUNDLE_KEY_LONGITUDE, locationObject.getDouble("lng"));
+            geocodingInfo.setAddressComponents(addressComponentsArray);
+            geocodingInfo.setLatitude(locationObject.getDouble("lat"));
+            geocodingInfo.setLongitude(locationObject.getDouble("lng"));
 
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to connect", ioe);
@@ -55,7 +60,7 @@ public class GeocodingUtils {
             Log.e(TAG, "Failed to parse JSON", je);
         }
 
-        return info;
+        return geocodingInfo;
     }
 
     public static byte[] getUrlBytes(String url) throws IOException {
@@ -69,7 +74,7 @@ public class GeocodingUtils {
                 throw new IOException(connection.getResponseMessage() + ": with " + url);
             }
 
-            int bytesRead = 0;
+            int bytesRead;
             byte[] buffer = new byte[1024];
 
             while((bytesRead = in.read(buffer)) > 0) {

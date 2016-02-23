@@ -6,11 +6,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 // Class representation of JSON forecast data
-public class ForecastInfo {
+public class ForecastInfo implements Serializable{
     public static final String TAG = "ForecastInfo";
 
     public static final int CURRENTLY = 0;
@@ -114,6 +115,55 @@ public class ForecastInfo {
         mCurrently.mHumidity = humidity;
     }
 
+    public double getCurrentlyDewPoint() {
+        return mCurrently.mDewPoint;
+    }
+
+    public void setCurrentlyDewPoint(double dewPoint) {
+        mCurrently.mDewPoint = dewPoint;
+    }
+
+    public double getCurrentlyPressure() {
+        return mCurrently.mPressure;
+    }
+
+    // Takes pressure in millibars and converts to in-Hg
+    public void setCurrentlyPressure(double pressure) {
+        mCurrently.mPressure = pressure * 0.02953;
+    }
+
+    public double getCurrentlyWindSpeed() {
+        return mCurrently.mWindSpeed;
+    }
+
+    public void setCurrentlyWindSpeed(double windSpeed) {
+        mCurrently.mWindSpeed = windSpeed;
+    }
+
+    public double getCurrentlyCloudCover() {
+        return mCurrently.mCloudCover;
+    }
+
+    public void setCurrentlyCloudCover(double cloudCover) {
+        mCurrently.mCloudCover = cloudCover;
+    }
+
+    public double getCurrentlyVisibility() {
+        return mCurrently.mVisibility;
+    }
+
+    public void setCurrentlyVisibility(double visibility) {
+        mCurrently.mVisibility = visibility;
+    }
+
+    public int getCurrentlyWindBearing() {
+        return mCurrently.mWindBearing;
+    }
+
+    public void setCurrentlyWindBearing(int windBearing) {
+        mCurrently.mWindBearing = windBearing;
+    }
+
     public String getSummary(int timePeriod) {
         String summary = null;
         switch(timePeriod) {
@@ -178,174 +228,60 @@ public class ForecastInfo {
         mDaily.mIcon = dIcon;
     }
 
-    public double getDataPrecipIntensity(int timePeriod, int index) throws ForecastInfoException {
-        double precipIntensity = 0.0;
-        switch(timePeriod) {
-            case CURRENTLY:
-                throw new ForecastInfoException(
-                        "getDataPrecipIntensity cannot use ForecastInfo.CURRENTLY time period"
-                );
-            case MINUTELY:
-                precipIntensity = mMinutely.mData.get(index).mPrecipIntensity;
-                break;
-            case HOURLY:
-                precipIntensity = mHourly.mData.get(index).mPrecipIntensity;
-                break;
-            case DAILY:
-                precipIntensity = mDaily.mData.get(index).mPrecipIntensity;
-        }
-        return precipIntensity;
+    public ArrayList<Minutely.Data> getMinutelyData() {
+        return mMinutely.mData;
     }
 
-    public double getDataPrecipProbability(int timePeriod, int index) throws ForecastInfoException {
-        double precipProbability = 0.0;
-        switch(timePeriod) {
-            case CURRENTLY:
-                throw new ForecastInfoException(
-                        "getDataPrecipProbability cannot use ForecastInfo.CURRENTLY time period"
-                );
-            case MINUTELY:
-                precipProbability = mMinutely.mData.get(index).mPrecipProbability;
-                break;
-            case HOURLY:
-                precipProbability = mHourly.mData.get(index).mPrecipProbability;
-                break;
-            case DAILY:
-                precipProbability = mDaily.mData.get(index).mPrecipProbability;
-        }
-        return precipProbability;
+    public ArrayList<Hourly.Data> getHourlyData() {
+        return mHourly.mData;
     }
 
-    public Date getDataTime(int timePeriod, int index) throws ForecastInfoException {
-        Date time = null;
-        switch(timePeriod) {
-            case CURRENTLY:
-                throw new ForecastInfoException(
-                        "getDataTime cannot use ForecastInfo.CURRENTLY time period"
-                );
-            case MINUTELY:
-                time = mMinutely.mData.get(index).mTime;
-                break;
-            case HOURLY:
-                time = mHourly.mData.get(index).mTime;
-                break;
-            case DAILY:
-                time = mDaily.mData.get(index).mTime;
-        }
-        return time;
-    }
-
-    public double getDataHourlyTemperature(int index) {
-        return mHourly.mData.get(index).mTemperature;
-    }
-
-    public double getDataHourlyApparentTemperature(int index) {
-        return mHourly.mData.get(index).mApparentTemperature;
-    }
-
-    public double getDataDailyTemperatureMin(int index) {
-        return mDaily.mData.get(index).mTemperatureMin;
-    }
-
-    public double getDataDailyTemperatureMax(int index) {
-        return mDaily.mData.get(index).mTemperatureMax;
-    }
-
-    public double getDataDailyApparentTemperatureMin(int index) {
-        return mDaily.mData.get(index).mApparentTemperatureMin;
-    }
-
-    public double getDataDailyApparentTemperatureMax(int index) {
-        return mDaily.mData.get(index).mApparentTemperatureMax;
-    }
-
-    public double getDataHumidity(int timePeriod, int index) throws ForecastInfoException{
-        double humidity = 0.0;
-        switch(timePeriod) {
-            case CURRENTLY:
-            case MINUTELY:
-                throw new ForecastInfoException(
-                        "getDataHumidity cannot use ForecastInfo.CURRENTLY or ForecastInfo.MINUTELY time periods"
-                );
-            case HOURLY:
-                humidity = mHourly.mData.get(index).mHumidity;
-                break;
-            case DAILY:
-                humidity = mDaily.mData.get(index).mHumidity;
-        }
-        return humidity;
-    }
-
-    public String getDataSummary(int timePeriod, int index) throws ForecastInfoException{
-        String summary = null;
-        switch(timePeriod) {
-            case CURRENTLY:
-            case MINUTELY:
-                throw new ForecastInfoException(
-                        "getDataSummary cannot use ForecastInfo.CURRENTLY or ForecastInfo.MINUTELY time periods"
-                );
-            case HOURLY:
-                summary = mHourly.mData.get(index).mSummary;
-                break;
-            case DAILY:
-                summary = mDaily.mData.get(index).mSummary;
-        }
-        return summary;
-    }
-
-    public String getDataIcon(int timePeriod, int index) throws ForecastInfoException{
-        String icon = null;
-        switch(timePeriod) {
-            case CURRENTLY:
-            case MINUTELY:
-                throw new ForecastInfoException(
-                        "getDataIcon cannot use ForecastInfo.CURRENTLY or ForecastInfo.MINUTELY time periods"
-                );
-            case HOURLY:
-                icon = mHourly.mData.get(index).mIcon;
-                break;
-            case DAILY:
-                icon = mDaily.mData.get(index).mIcon;
-        }
-        return icon;
+    public ArrayList<Daily.Data> getDailyData() {
+        return mDaily.mData;
     }
 
     public void setData(JSONArray m, JSONArray h, JSONArray d) {
         try {
             // Set minute-by-minute forecast data
-            for (int i = 0; i < m.length(); i++) {
-                JSONObject o = m.getJSONObject(i);
-                mMinutely.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                mMinutely.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                mMinutely.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
+            if(m != null) {
+                for (int i = 0; i < m.length(); i++) {
+                    JSONObject o = m.getJSONObject(i);
+                    mMinutely.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
+                    mMinutely.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
+                    mMinutely.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
+                }
             }
 
             // Set hour-by-hour forecast data
-            for (int i = 0; i < h.length(); i++) {
-                JSONObject o = h.getJSONObject(i);
-                mHourly.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                mHourly.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                mHourly.mData.get(i).mTemperature = o.getDouble("temperature");
-                mHourly.mData.get(i).mApparentTemperature = o.getDouble("apparentTemperature");
-                mHourly.mData.get(i).mHumidity = o.getDouble("humidity");
-                mHourly.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                mHourly.mData.get(i).mSummary = o.getString("summary");
-                mHourly.mData.get(i).mIcon = o.getString("icon");
+            if(h != null) {
+                for (int i = 0; i < h.length(); i++) {
+                    JSONObject o = h.getJSONObject(i);
+                    mHourly.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
+                    mHourly.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
+                    mHourly.mData.get(i).mTemperature = o.getDouble("temperature");
+                    mHourly.mData.get(i).mApparentTemperature = o.getDouble("apparentTemperature");
+                    mHourly.mData.get(i).mHumidity = o.getDouble("humidity");
+                    mHourly.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
+                    mHourly.mData.get(i).mSummary = o.getString("summary");
+                    mHourly.mData.get(i).mIcon = o.getString("icon");
+                }
             }
 
             // Set day-by-day forecast data
-            for (int i = 0; i < d.length(); i++) {
-                JSONObject o = d.getJSONObject(i);
-                mDaily.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                mDaily.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                mDaily.mData.get(i).mTemperatureMin = o.getDouble("temperatureMin");
-                mDaily.mData.get(i).mTemperatureMax = o.getDouble("temperatureMax");
-                mDaily.mData.get(i).mApparentTemperatureMin = o.getDouble("apparentTemperatureMin");
-                mDaily.mData.get(i).mApparentTemperatureMax = o.getDouble("apparentTemperatureMax");
-                mDaily.mData.get(i).mHumidity = o.getDouble("humidity");
-                mDaily.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                mDaily.mData.get(i).mSummary = o.getString("summary");
-                mDaily.mData.get(i).mIcon = o.getString("icon");
+            if(d != null) {
+                for (int i = 0; i < d.length(); i++) {
+                    JSONObject o = d.getJSONObject(i);
+                    mDaily.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
+                    mDaily.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
+                    mDaily.mData.get(i).mTemperatureMin = o.getDouble("temperatureMin");
+                    mDaily.mData.get(i).mTemperatureMax = o.getDouble("temperatureMax");
+                    mDaily.mData.get(i).mApparentTemperatureMin = o.getDouble("apparentTemperatureMin");
+                    mDaily.mData.get(i).mApparentTemperatureMax = o.getDouble("apparentTemperatureMax");
+                    mDaily.mData.get(i).mHumidity = o.getDouble("humidity");
+                    mDaily.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
+                    mDaily.mData.get(i).mSummary = o.getString("summary");
+                    mDaily.mData.get(i).mIcon = o.getString("icon");
+                }
             }
 
         } catch(JSONException je) {
@@ -394,15 +330,21 @@ public class ForecastInfo {
         mMinutely = new Minutely();
         mHourly = new Hourly();
         mDaily = new Daily();
-        Log.d(TAG, "ForecastInfo Constructor - mMinutely.mData.size() = " + mMinutely.mData.size());
     }
 
-    private class Currently {
+    private class Currently implements Serializable{
         private double mPrecipIntensity;
         private double mPrecipProbability;
         private double mTemperature;
         private double mApparentTemperature;
         private double mHumidity;
+        private double mDewPoint;
+        private double mPressure;
+        private double mWindSpeed;
+        private double mCloudCover;
+        private double mVisibility;
+
+        private int mWindBearing;
 
         private String mSummary;
         private String mIcon;
@@ -410,7 +352,7 @@ public class ForecastInfo {
         private Date mTime;
     }
 
-    private class Minutely {
+    private class Minutely implements Serializable{
         private String mSummary;
         private String mIcon;
 
@@ -424,7 +366,7 @@ public class ForecastInfo {
             Log.d(TAG, "Minutely Constructor - mData.size() = " + mData.size());
         }
 
-        private class Data {
+        private class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
 
@@ -432,7 +374,7 @@ public class ForecastInfo {
         }
     }
 
-    private class Hourly {
+    public class Hourly implements Serializable{
         private String mSummary;
         private String mIcon;
 
@@ -443,9 +385,10 @@ public class ForecastInfo {
             for(int i = 0; i < SIZE_HOURLY_DATA; i++) {
                 mData.add(i, new Data());
             }
+            Log.d(TAG, "Hourly Constructor - mData.size() = " + mData.size());
         }
 
-        private class Data {
+        public class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
             private double mTemperature;
@@ -456,23 +399,44 @@ public class ForecastInfo {
             private String mIcon;
 
             private Date mTime;
+
+            public double getTemperature() {
+                return mTemperature;
+            }
+
+            public String getSummary() {
+                return mSummary;
+            }
+
+            public String getIcon() {
+                return mIcon;
+            }
+
+            public Date getTime() {
+                return mTime;
+            }
         }
     }
 
-    private class Daily {
+    public class Daily implements Serializable{
         private String mSummary;
         private String mIcon;
 
         private ArrayList<Data> mData;
+
+        public Daily getInstance() {
+            return mDaily;
+        }
 
         private Daily() {
             mData = new ArrayList<>();
             for(int i = 0; i < SIZE_DAILY_DATA; i++) {
                 mData.add(i, new Data());
             }
+            Log.d(TAG, "Daily Constructor - mData.size() = " + mData.size());
         }
 
-        private class Data {
+        public class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
             private double mTemperatureMin;
@@ -485,6 +449,30 @@ public class ForecastInfo {
             private String mIcon;
 
             private Date mTime;
+
+            public double getTemperatureMin() {
+                return mTemperatureMin;
+            }
+
+            public double getTemperatureMax() {
+                return mTemperatureMax;
+            }
+
+            public double getHumidity() {
+                return mHumidity;
+            }
+
+            public String getSummary() {
+                return mSummary;
+            }
+
+            public String getIcon() {
+                return mIcon;
+            }
+
+            public Date getTime() {
+                return mTime;
+            }
         }
     }
 }

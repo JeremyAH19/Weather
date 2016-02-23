@@ -2,12 +2,10 @@ package com.jeremyah19.android.weather;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,14 +17,14 @@ public class CurrentWeatherView extends LinearLayout {
     private String mApparentTemperatureText;
     private String mHumidityText;
 
-    private Drawable mIconSrc;
-
-    private View mRootView;
+    private Drawable mIcon;
 
     private TextView mSummaryTextView;
     private TextView mTemperatureTextView;
     private TextView mApparentTemperatureTextView;
     private TextView mHumidityTextView;
+
+    private Button mMoreDetailsButton;
 
     ImageView mIconImageView;
 
@@ -86,23 +84,24 @@ public class CurrentWeatherView extends LinearLayout {
         mHumidityTextView.setText(mHumidityText);
     }
 
-    public void setIconSrc(int iconSrcId) {
-        if(Build.VERSION.SDK_INT >= 21) {
-            mIconSrc = getResources().getDrawable(iconSrcId, null);
-        } else {
-            mIconSrc = getResources().getDrawable(iconSrcId);
-        }
-        mIconImageView.setImageDrawable(mIconSrc);
+    public void setIconDrawable(Drawable icon) {
+        mIcon = icon;
+        mIconImageView.setImageDrawable(mIcon);
+    }
+
+    public Button getMoreDetailsButton() {
+        return mMoreDetailsButton;
     }
 
     private void init(Context context, AttributeSet attrs) {
-        mRootView = inflate(context, R.layout.card_weather, this);
+        View rootView = inflate(context, R.layout.card_weather, this);
 
-        mSummaryTextView = (TextView) mRootView.findViewById(R.id.currently_summary_text_view);
-        mTemperatureTextView = (TextView) mRootView.findViewById(R.id.currently_temperature_text_view);
-        mApparentTemperatureTextView = (TextView) mRootView.findViewById(R.id.currently_apparent_temperature_text_view);
-        mHumidityTextView = (TextView) mRootView.findViewById(R.id.currently_humidity_text_view);
-        mIconImageView = (ImageView) mRootView.findViewById(R.id.currently_icon_image_view);
+        mSummaryTextView = (TextView) rootView.findViewById(R.id.currently_summary_text_view);
+        mTemperatureTextView = (TextView) rootView.findViewById(R.id.currently_temperature_text_view);
+        mApparentTemperatureTextView = (TextView) rootView.findViewById(R.id.currently_apparent_temperature_text_view);
+        mHumidityTextView = (TextView) rootView.findViewById(R.id.currently_humidity_text_view);
+        mIconImageView = (ImageView) rootView.findViewById(R.id.currently_icon_image_view);
+        mMoreDetailsButton = (Button) rootView.findViewById(R.id.currently_more_details_button);
 
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CurrentWeatherView, 0, 0);
         if (ta != null) {
@@ -110,15 +109,14 @@ public class CurrentWeatherView extends LinearLayout {
             mTemperatureText = ta.getString(R.styleable.CurrentWeatherView_temperatureText);
             mApparentTemperatureText = ta.getString(R.styleable.CurrentWeatherView_apparentTemperatureText);
             mHumidityText = ta.getString(R.styleable.CurrentWeatherView_humidityText);
-            mIconSrc = ta.getDrawable(R.styleable.CurrentWeatherView_iconSrc);
+            mIcon = ta.getDrawable(R.styleable.CurrentWeatherView_iconSrc);
             ta.recycle();
 
             mSummaryTextView.setText(mSummaryText);
             mTemperatureTextView.setText(mTemperatureText);
             mApparentTemperatureTextView.setText(mApparentTemperatureText);
             mHumidityTextView.setText(mHumidityText);
-            mIconImageView.setImageDrawable(mIconSrc);
+            mIconImageView.setImageDrawable(mIcon);
         }
-
     }
 }

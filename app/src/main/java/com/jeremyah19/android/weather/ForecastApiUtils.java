@@ -1,7 +1,9 @@
 package com.jeremyah19.android.weather;
 
-
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -17,16 +19,22 @@ public class ForecastApiUtils {
 
     public static ForecastInfo getForecastInfo(double latitude, double longitude) {
         ForecastInfo forecastInfo = null;
+        Uri uri = Uri.parse(API_DOMAIN)
+                .buildUpon()
+                .appendPath(ApiKeys.FORECAST_API_KEY)
+                .appendPath(Double.toString(latitude) + "," + Double.toString(longitude))
+                .build();
+        Log.d(TAG, "Forecast JSON URL: " + uri.toString());
+
         try {
+
             JSONObject jsonObject = new JSONObject(
-                    new String(GeocodingUtils.getUrlBytes(
-                            buildUri(latitude, longitude).toString())));
+                    new String(GeocodingUtils.getUrlBytes(uri.toString())));
+            Log.i(TAG, "Received JSON: " + jsonObject.toString());
 
             forecastInfo = ForecastInfo.getInstance();
             forecastInfo.setTimezone(jsonObject.getString("timezone"));
             forecastInfo.setOffset(jsonObject.getDouble("offset"));
-
-            Log.i(TAG, "Received JSON: " + jsonObject.toString());
 
             JSONObject cObject = jsonObject.getJSONObject("currently");
             JSONObject hObject = jsonObject.getJSONObject("hourly");
@@ -41,15 +49,7 @@ public class ForecastApiUtils {
             }
 
             // Set current forecast data
-            forecastInfo.setCurrentlyTime(new Date(cObject.getLong("time") * 1000));
-            forecastInfo.setCurrentlyPrecipIntensity(
-                    cObject.getDouble("precipIntensity"));
-            forecastInfo.setCurrentlyPrecipProbability(
-                    cObject.getDouble("precipProbability"));
-            forecastInfo.setCurrentlyTemperature(cObject.getDouble("temperature"));
-            forecastInfo.setCurrentlyApparentTemperature(
-                    cObject.getDouble("apparentTemperature"));
-            forecastInfo.setCurrentlyHumidity(cObject.getDouble("humidity"));
+            setCurrentForecast(forecastInfo, cObject);
 
             // Set rest of data for all forecasts
             if(forecastInfo.hasMinutelyData()) {
@@ -98,13 +98,61 @@ public class ForecastApiUtils {
         return forecastInfo;
     }
 
-    private static Uri buildUri(double latitude, double longitude) {
-        return Uri.parse(API_DOMAIN)
-                .buildUpon()
-                .appendPath(ApiKeys.FORECAST_API_KEY)
-                .appendPath(Double.toString(latitude) + "," + Double.toString(longitude))
-                .build();
-
+    public static Drawable getIconDrawable(Context context, String icon) {
+        if(Build.VERSION.SDK_INT >= 21) {
+            return context.getResources().getDrawable(getIconId(icon), null);
+        } else {
+            return context.getResources().getDrawable(getIconId(icon));
+        }
     }
 
+    // Returns appropriate icon id based on input icon string
+    private static int getIconId(String icon) {
+        switch(icon) {
+            case "clear-day":
+                return R.drawable.ic_clear_day;
+            case "clear-night":
+                return R.drawable.ic_clear_night;
+            case "rain":
+                return R.drawable.ic_rain;
+            case "snow":
+            case "hail":
+            case "sleet":
+                return R.drawable.ic_snow;
+            case "wind":
+                return R.drawable.ic_wind;
+            case "fog":
+                return R.drawable.ic_fog;
+            case "cloudy":
+                return R.drawable.ic_cloudy;
+            case "partly-cloudy-day":
+                return R.drawable.ic_partly_cloudy_day;
+            case "partly-cloudy-night":
+                return R.drawable.ic_partly_cloudy_night;
+            case "thunderstorm":
+                return R.drawable.ic_thunderstorm;
+            case "tornado":
+                return R.drawable.ic_tornado;
+        }
+        return 0;
+    }
+
+    private static void setCurrentForecast(ForecastInfo info, JSONObject o) {
+        try {
+            info.setCurrentlyTime(new Date(o.getLong("time") * 1000));
+            info.setCurrentlyPrecipIntensity(o.getDouble("precipIntensity"));
+            info.setCurrentlyPrecipProbability(o.getDouble("precipProbability"));
+            info.setCurrentlyTemperature(o.getDouble("temperature"));
+            info.setCurrentlyApparentTemperature(o.getDouble("apparentTemperature"));
+            info.setCurrentlyHumidity(o.getDouble("humidity"));
+            info.setCurrentlyDewPoint(o.getDouble("dewPoint"));
+            info.setCurrentlyWindSpeed(o.getDouble("windSpeed"));
+            info.setCurrentlyCloudCover(o.getDouble("cloudCover"));
+            info.setCurrentlyPressure(o.getDouble("pressure"));
+            info.setCurrentlyVisibility(o.getDouble("visibility"));
+            info.setCurrentlyWindBearing(o.getInt("windBearing"));
+        } catch(JSONException je) {
+            Log.e(TAG, "Failed to parse JSON", je);
+        }
+    }
 }
