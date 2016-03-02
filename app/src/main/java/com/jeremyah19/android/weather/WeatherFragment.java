@@ -1,9 +1,9 @@
 package com.jeremyah19.android.weather;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,28 +55,33 @@ public class WeatherFragment extends Fragment {
             currentWeatherView.setIconDrawable(
                     ForecastApiUtils.getIconDrawable(
                             getActivity(),
-                            mForecastInfo.getIcon(ForecastInfo.CURRENTLY))
-            );
+                            mForecastInfo.getCurrently().getIcon()
+            ));
 
-            currentWeatherView.setSummaryText(mForecastInfo.getSummary(ForecastInfo.CURRENTLY));
+            currentWeatherView.setSummaryText(mForecastInfo.getCurrently().getSummary());
             currentWeatherView.setTemperatureText(getString(
                     R.string.temperature,
-                    Math.round(mForecastInfo.getCurrentlyTemperature())));
+                    Math.round(mForecastInfo.getCurrently().getTemperature())));
 
             currentWeatherView.setApparentTemperatureText(getString(
                     R.string.apparent_temperature,
-                    Math.round(mForecastInfo.getCurrentlyApparentTemperature())));
+                    Math.round(mForecastInfo.getCurrently().getApparentTemperature())));
 
             currentWeatherView.setHumidityText(getString(
                     R.string.humidity,
-                    Math.round(mForecastInfo.getCurrentlyHumidity() * 100)));
+                    Math.round(mForecastInfo.getCurrently().getHumidity() * 100)));
         }
 
         Button currentWeatherMoreDetailsButton = currentWeatherView.getMoreDetailsButton();
         currentWeatherMoreDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(CurrentWeatherActivity.newIntent(getActivity(), mForecastInfo, mCity));
+                Intent intent = WeatherDetailActivity.newIntent(
+                        getActivity(),
+                        mForecastInfo.getCurrently(),
+                        mCity
+                );
+                startActivity(intent);
             }
         });
 

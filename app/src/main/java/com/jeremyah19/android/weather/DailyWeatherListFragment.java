@@ -1,5 +1,6 @@
 package com.jeremyah19.android.weather;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -52,34 +53,13 @@ public class DailyWeatherListFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.daily_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(new DailyWeatherAdapter(mForecastInfo.getDailyData()));
-
+        mRecyclerView.setAdapter(new DailyWeatherAdapter(mForecastInfo.getDaily().getData()));
 
         return v;
     }
 
     private String getMonthString(int month) {
         return Integer.toString(month + 1);
-    }
-
-    private String getDayOfWeekString(int dayOfWeek) {
-        switch(dayOfWeek) {
-            case Calendar.SUNDAY:
-                return "SUN";
-            case Calendar.MONDAY:
-                return "MON";
-            case Calendar.TUESDAY:
-                return "TUE";
-            case Calendar.WEDNESDAY:
-                return "WED";
-            case Calendar.THURSDAY:
-                return "THU";
-            case Calendar.FRIDAY:
-                return "FRI";
-            case Calendar.SATURDAY:
-                return "SAT";
-        }
-        return null;
     }
 
     private class DailyWeatherHolder extends RecyclerView.ViewHolder
@@ -117,7 +97,7 @@ public class DailyWeatherListFragment extends Fragment {
                     getMonthString(calendar.get(Calendar.MONTH)),
                     Integer.toString(calendar.get(Calendar.DATE))));
 
-            mDayTextView.setText((getDayOfWeekString(calendar.get(Calendar.DAY_OF_WEEK))));
+            mDayTextView.setText((ForecastApiUtils.getDayOfWeekShortString(calendar.get(Calendar.DAY_OF_WEEK))));
 
             mSummaryTextView.setText(mDailyData.getSummary());
 
@@ -135,7 +115,12 @@ public class DailyWeatherListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-
+            Intent intent = WeatherDetailActivity.newIntent(
+                    getActivity(),
+                    mDailyData,
+                    mCity
+            );
+            startActivity(intent);
         }
     }
 

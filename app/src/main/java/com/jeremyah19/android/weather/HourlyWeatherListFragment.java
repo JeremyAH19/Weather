@@ -1,5 +1,6 @@
 package com.jeremyah19.android.weather;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,27 +54,9 @@ public class HourlyWeatherListFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.hourly_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(new HourlyWeatherAdapter(mForecastInfo.getHourlyData()));
+        mRecyclerView.setAdapter(new HourlyWeatherAdapter(mForecastInfo.getHourly().getData()));
 
         return v;
-    }
-
-    private String getAmPmString(int amPm) {
-        switch(amPm) {
-            case Calendar.AM:
-                return "AM";
-            case Calendar.PM:
-                return "PM";
-        }
-        return null;
-    }
-
-    private String getHourString(int hour) {
-        if(hour == 0) {
-            return "12";
-        } else {
-            return Integer.toString(hour);
-        }
     }
 
     private class HourlyWeatherHolder extends RecyclerView.ViewHolder
@@ -106,8 +89,8 @@ public class HourlyWeatherListFragment extends Fragment {
 
             mHourTextView.setText(getString(
                     R.string.hour,
-                    getHourString(calendar.get(Calendar.HOUR)),
-                    getAmPmString(calendar.get(Calendar.AM_PM))
+                    ForecastApiUtils.getHourString(calendar.get(Calendar.HOUR)),
+                    ForecastApiUtils.getAmPmString(calendar.get(Calendar.AM_PM))
             ));
             mSummaryTextView.setText(mHourlyData.getSummary());
             mTemperatureTextView.setText(getString(
@@ -123,7 +106,12 @@ public class HourlyWeatherListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-
+            Intent intent = WeatherDetailActivity.newIntent(
+                    getActivity(),
+                    mHourlyData,
+                    mCity
+            );
+            startActivity(intent);
         }
     }
 

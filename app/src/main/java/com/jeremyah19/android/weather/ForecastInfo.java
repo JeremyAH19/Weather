@@ -2,10 +2,6 @@ package com.jeremyah19.android.weather;
 
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,9 +11,6 @@ public class ForecastInfo implements Serializable{
     public static final String TAG = "ForecastInfo";
 
     public static final int CURRENTLY = 0;
-    public static final int MINUTELY = 1;
-    public static final int HOURLY = 2;
-    public static final int DAILY = 3;
 
     private static final int SIZE_MINUTELY_DATA = 61;
     private static final int SIZE_HOURLY_DATA = 49;
@@ -67,262 +60,20 @@ public class ForecastInfo implements Serializable{
         mTimezone = timezone;
     }
 
-    public Date getCurrentlyTime() {
-        return mCurrently.mTime;
+    public Currently getCurrently() {
+        return mCurrently;
     }
 
-    public void setCurrentlyTime(Date time) {
-        mCurrently.mTime = time;
+    public Minutely getMinutely() {
+        return mMinutely;
     }
 
-    public double getCurrentlyPrecipIntensity() {
-        return mCurrently.mPrecipIntensity;
+    public Hourly getHourly() {
+        return mHourly;
     }
 
-    public void setCurrentlyPrecipIntensity(double precipIntensity) {
-        mCurrently.mPrecipIntensity = precipIntensity;
-    }
-
-    public double getCurrentlyPrecipProbability() {
-        return mCurrently.mPrecipProbability;
-    }
-
-    public void setCurrentlyPrecipProbability(double precipProbability) {
-        mCurrently.mPrecipProbability = precipProbability;
-    }
-
-    public double getCurrentlyTemperature() {
-        return mCurrently.mTemperature;
-    }
-
-    public void setCurrentlyTemperature(double temperature) {
-        mCurrently.mTemperature = temperature;
-    }
-
-    public double getCurrentlyApparentTemperature() {
-        return mCurrently.mApparentTemperature;
-    }
-
-    public void setCurrentlyApparentTemperature(double apparentTemperature) {
-        mCurrently.mApparentTemperature = apparentTemperature;
-    }
-
-    public double getCurrentlyHumidity() {
-        return mCurrently.mHumidity;
-    }
-
-    public void setCurrentlyHumidity(double humidity) {
-        mCurrently.mHumidity = humidity;
-    }
-
-    public double getCurrentlyDewPoint() {
-        return mCurrently.mDewPoint;
-    }
-
-    public void setCurrentlyDewPoint(double dewPoint) {
-        mCurrently.mDewPoint = dewPoint;
-    }
-
-    public double getCurrentlyPressure() {
-        return mCurrently.mPressure;
-    }
-
-    // Takes pressure in millibars and converts to in-Hg
-    public void setCurrentlyPressure(double pressure) {
-        mCurrently.mPressure = pressure * 0.02953;
-    }
-
-    public double getCurrentlyWindSpeed() {
-        return mCurrently.mWindSpeed;
-    }
-
-    public void setCurrentlyWindSpeed(double windSpeed) {
-        mCurrently.mWindSpeed = windSpeed;
-    }
-
-    public double getCurrentlyCloudCover() {
-        return mCurrently.mCloudCover;
-    }
-
-    public void setCurrentlyCloudCover(double cloudCover) {
-        mCurrently.mCloudCover = cloudCover;
-    }
-
-    public double getCurrentlyVisibility() {
-        return mCurrently.mVisibility;
-    }
-
-    public void setCurrentlyVisibility(double visibility) {
-        mCurrently.mVisibility = visibility;
-    }
-
-    public int getCurrentlyWindBearing() {
-        return mCurrently.mWindBearing;
-    }
-
-    public void setCurrentlyWindBearing(int windBearing) {
-        mCurrently.mWindBearing = windBearing;
-    }
-
-    public String getSummary(int timePeriod) {
-        String summary = null;
-        switch(timePeriod) {
-            case CURRENTLY:
-                summary = mCurrently.mSummary;
-                break;
-            case MINUTELY:
-                summary = mMinutely.mSummary;
-                break;
-            case HOURLY:
-                summary = mHourly.mSummary;
-                break;
-            case DAILY:
-                summary = mDaily.mSummary;
-        }
-        return summary;
-    }
-
-    public void setSummaries(String cSummary, String mSummary, String hSummary, String dSummary) {
-        mCurrently.mSummary = cSummary;
-        mMinutely.mSummary = mSummary;
-        mHourly.mSummary = hSummary;
-        mDaily.mSummary = dSummary;
-    }
-
-    // In case there is no minute-by-minute data in forecast
-    public void setSummaries(String cSummary, String hSummary, String dSummary) {
-        mCurrently.mSummary = cSummary;
-        mHourly.mSummary = hSummary;
-        mDaily.mSummary = dSummary;
-    }
-
-    public String getIcon(int timePeriod) {
-        String icon = null;
-        switch(timePeriod) {
-            case CURRENTLY:
-                icon = mCurrently.mIcon;
-                break;
-            case MINUTELY:
-                icon = mMinutely.mIcon;
-                break;
-            case HOURLY:
-                icon = mHourly.mIcon;
-                break;
-            case DAILY:
-                icon = mDaily.mIcon;
-        }
-        return icon;
-    }
-
-    public void setIcons(String cIcon, String mIcon, String hIcon, String dIcon) {
-        mCurrently.mIcon = cIcon;
-        mMinutely.mIcon = mIcon;
-        mHourly.mIcon = hIcon;
-        mDaily.mIcon = dIcon;
-    }
-
-    // In case there is no minute-by-minute data in forecast
-    public void setIcons(String cIcon, String hIcon, String dIcon) {
-        mCurrently.mIcon = cIcon;
-        mHourly.mIcon = hIcon;
-        mDaily.mIcon = dIcon;
-    }
-
-    public ArrayList<Minutely.Data> getMinutelyData() {
-        return mMinutely.mData;
-    }
-
-    public ArrayList<Hourly.Data> getHourlyData() {
-        return mHourly.mData;
-    }
-
-    public ArrayList<Daily.Data> getDailyData() {
-        return mDaily.mData;
-    }
-
-    public void setData(JSONArray m, JSONArray h, JSONArray d) {
-        try {
-            // Set minute-by-minute forecast data
-            if(m != null) {
-                for (int i = 0; i < m.length(); i++) {
-                    JSONObject o = m.getJSONObject(i);
-                    mMinutely.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                    mMinutely.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                    mMinutely.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                }
-            }
-
-            // Set hour-by-hour forecast data
-            if(h != null) {
-                for (int i = 0; i < h.length(); i++) {
-                    JSONObject o = h.getJSONObject(i);
-                    mHourly.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                    mHourly.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                    mHourly.mData.get(i).mTemperature = o.getDouble("temperature");
-                    mHourly.mData.get(i).mApparentTemperature = o.getDouble("apparentTemperature");
-                    mHourly.mData.get(i).mHumidity = o.getDouble("humidity");
-                    mHourly.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                    mHourly.mData.get(i).mSummary = o.getString("summary");
-                    mHourly.mData.get(i).mIcon = o.getString("icon");
-                }
-            }
-
-            // Set day-by-day forecast data
-            if(d != null) {
-                for (int i = 0; i < d.length(); i++) {
-                    JSONObject o = d.getJSONObject(i);
-                    mDaily.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                    mDaily.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                    mDaily.mData.get(i).mTemperatureMin = o.getDouble("temperatureMin");
-                    mDaily.mData.get(i).mTemperatureMax = o.getDouble("temperatureMax");
-                    mDaily.mData.get(i).mApparentTemperatureMin = o.getDouble("apparentTemperatureMin");
-                    mDaily.mData.get(i).mApparentTemperatureMax = o.getDouble("apparentTemperatureMax");
-                    mDaily.mData.get(i).mHumidity = o.getDouble("humidity");
-                    mDaily.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                    mDaily.mData.get(i).mSummary = o.getString("summary");
-                    mDaily.mData.get(i).mIcon = o.getString("icon");
-                }
-            }
-
-        } catch(JSONException je) {
-            Log.e(TAG, "Cannot parse JSON", je);
-        }
-    }
-
-    // In case there is no minute-by-minute data in forecast
-    public void setData(JSONArray h, JSONArray d) {
-        try {
-            // Set hour-by-hour forecast data
-            for (int i = 0; i < h.length(); i++) {
-                JSONObject o = h.getJSONObject(i);
-                mHourly.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                mHourly.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                mHourly.mData.get(i).mTemperature = o.getDouble("temperature");
-                mHourly.mData.get(i).mApparentTemperature = o.getDouble("apparentTemperature");
-                mHourly.mData.get(i).mHumidity = o.getDouble("humidity");
-                mHourly.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                mHourly.mData.get(i).mSummary = o.getString("summary");
-                mHourly.mData.get(i).mIcon = o.getString("icon");
-            }
-
-            // Set day-by-day forecast data
-            for (int i = 0; i < d.length(); i++) {
-                JSONObject o = d.getJSONObject(i);
-                mDaily.mData.get(i).mPrecipIntensity = o.getDouble("precipIntensity");
-                mDaily.mData.get(i).mPrecipProbability = o.getDouble("precipProbability");
-                mDaily.mData.get(i).mTemperatureMin = o.getDouble("temperatureMin");
-                mDaily.mData.get(i).mTemperatureMax = o.getDouble("temperatureMax");
-                mDaily.mData.get(i).mApparentTemperatureMin = o.getDouble("apparentTemperatureMin");
-                mDaily.mData.get(i).mApparentTemperatureMax = o.getDouble("apparentTemperatureMax");
-                mDaily.mData.get(i).mHumidity = o.getDouble("humidity");
-                mDaily.mData.get(i).mTime = new Date(o.getLong("time") * 1000);
-                mDaily.mData.get(i).mSummary = o.getString("summary");
-                mDaily.mData.get(i).mIcon = o.getString("icon");
-            }
-
-        } catch(JSONException je) {
-            Log.e(TAG, "Cannot parse JSON", je);
-        }
+    public Daily getDaily() {
+        return mDaily;
     }
 
     private ForecastInfo() {
@@ -332,7 +83,7 @@ public class ForecastInfo implements Serializable{
         mDaily = new Daily();
     }
 
-    private class Currently implements Serializable{
+    public class Currently implements Serializable{
         private double mPrecipIntensity;
         private double mPrecipProbability;
         private double mTemperature;
@@ -348,29 +99,197 @@ public class ForecastInfo implements Serializable{
 
         private String mSummary;
         private String mIcon;
+        private String mPrecipType;
 
         private Date mTime;
+
+        public String getSummary() {
+            return mSummary;
+        }
+
+        public void setSummary(String summary) {
+            mSummary = summary;
+        }
+
+        public String getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(String icon) {
+            mIcon = icon;
+        }
+
+        public double getPrecipIntensity() {
+            return mPrecipIntensity;
+        }
+
+        public void setPrecipIntensity(double precipIntensity) {
+            mPrecipIntensity = precipIntensity;
+        }
+
+        public double getPrecipProbability() {
+            return mPrecipProbability;
+        }
+
+        public void setPrecipProbability(double precipProbability) {
+            mPrecipProbability = precipProbability;
+        }
+
+        public double getTemperature() {
+            return mTemperature;
+        }
+
+        public void setTemperature(double temperature) {
+            mTemperature = temperature;
+        }
+
+        public double getApparentTemperature() {
+            return mApparentTemperature;
+        }
+
+        public void setApparentTemperature(double apparentTemperature) {
+            mApparentTemperature = apparentTemperature;
+        }
+
+        public double getHumidity() {
+            return mHumidity;
+        }
+
+        public void setHumidity(double humidity) {
+            mHumidity = humidity;
+        }
+
+        public double getDewPoint() {
+            return mDewPoint;
+        }
+
+        public void setDewPoint(double dewPoint) {
+            mDewPoint = dewPoint;
+        }
+
+        public double getPressure() {
+            return mPressure;
+        }
+
+        public void setPressure(double pressure) {
+            mPressure = pressure * 0.02953;
+        }
+
+        public double getWindSpeed() {
+            return mWindSpeed;
+        }
+
+        public void setWindSpeed(double windSpeed) {
+            mWindSpeed = windSpeed;
+        }
+
+        public double getCloudCover() {
+            return mCloudCover;
+        }
+
+        public void setCloudCover(double cloudCover) {
+            mCloudCover = cloudCover;
+        }
+
+        public double getVisibility() {
+            return mVisibility;
+        }
+
+        public void setVisibility(double visibility) {
+            mVisibility = visibility;
+        }
+
+        public int getWindBearing() {
+            return mWindBearing;
+        }
+
+        public void setWindBearing(int windBearing) {
+            mWindBearing = windBearing;
+        }
+
+        public String getPrecipType() {
+            return mPrecipType;
+        }
+
+        public void setPrecipType(String precipType) {
+            mPrecipType = precipType;
+        }
+
+        public Date getTime() {
+            return mTime;
+        }
+
+        public void setTime(Date time) {
+            mTime = time;
+        }
     }
 
-    private class Minutely implements Serializable{
+    public class Minutely implements Serializable{
         private String mSummary;
         private String mIcon;
 
         private ArrayList<Data> mData;
+
+        public String getSummary() {
+            return mSummary;
+        }
+
+        public void setSummary(String summary) {
+            mSummary = summary;
+        }
+
+        public String getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(String icon) {
+            mIcon = icon;
+        }
+
+        public ArrayList<Data> getData() {
+            return mData;
+        }
+
+        public void setData(ArrayList<Data> data) {
+            mData = data;
+        }
 
         private Minutely() {
             mData = new ArrayList<>();
             for(int i = 0; i < SIZE_MINUTELY_DATA; i++) {
                 mData.add(i, new Data());
             }
-            Log.d(TAG, "Minutely Constructor - mData.size() = " + mData.size());
         }
 
-        private class Data implements Serializable{
+        public class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
 
             private Date mTime;
+
+            public double getPrecipIntensity() {
+                return mPrecipIntensity;
+            }
+
+            public void setPrecipIntensity(double precipIntensity) {
+                mPrecipIntensity = precipIntensity;
+            }
+
+            public double getPrecipProbability() {
+                return mPrecipProbability;
+            }
+
+            public void setPrecipProbability(double precipProbability) {
+                mPrecipProbability = precipProbability;
+            }
+
+            public Date getTime() {
+                return mTime;
+            }
+
+            public void setTime(Date time) {
+                mTime = time;
+            }
         }
     }
 
@@ -380,40 +299,184 @@ public class ForecastInfo implements Serializable{
 
         private ArrayList<Data> mData;
 
+        public String getSummary() {
+            return mSummary;
+        }
+
+        public void setSummary(String summary) {
+            mSummary = summary;
+        }
+
+        public String getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(String icon) {
+            mIcon = icon;
+        }
+
+        public ArrayList<Data> getData() {
+            return mData;
+        }
+
+        public void setData(ArrayList<Data> data) {
+            mData = data;
+        }
+
         private Hourly() {
             mData = new ArrayList<>();
             for(int i = 0; i < SIZE_HOURLY_DATA; i++) {
                 mData.add(i, new Data());
             }
-            Log.d(TAG, "Hourly Constructor - mData.size() = " + mData.size());
         }
 
         public class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
+            private double mPrecipAccumulation;
             private double mTemperature;
             private double mApparentTemperature;
             private double mHumidity;
+            private double mDewPoint;
+            private double mPressure;
+            private double mWindSpeed;
+            private double mCloudCover;
+            private double mVisibility;
+
+            private int mWindBearing;
 
             private String mSummary;
             private String mIcon;
+            private String mPrecipType;
 
             private Date mTime;
 
+            public double getPrecipIntensity() {
+                return mPrecipIntensity;
+            }
+
+            public void setPrecipIntensity(double precipIntensity) {
+                mPrecipIntensity = precipIntensity;
+            }
+
+            public double getPrecipProbability() {
+                return mPrecipProbability;
+            }
+
+            public void setPrecipProbability(double precipProbability) {
+                mPrecipProbability = precipProbability;
+            }
+
+            public double getPrecipAccumulation() {
+                return mPrecipAccumulation;
+            }
+
+            public void setPrecipAccumulation(double precipAccumulation) {
+                mPrecipAccumulation = precipAccumulation;
+            }
+
             public double getTemperature() {
                 return mTemperature;
+            }
+
+            public void setTemperature(double temperature) {
+                mTemperature = temperature;
+            }
+
+            public double getApparentTemperature() {
+                return mApparentTemperature;
+            }
+
+            public void setApparentTemperature(double apparentTemperature) {
+                mApparentTemperature = apparentTemperature;
+            }
+
+            public double getHumidity() {
+                return mHumidity;
+            }
+
+            public void setHumidity(double humidity) {
+                mHumidity = humidity;
+            }
+
+            public double getDewPoint() {
+                return mDewPoint;
+            }
+
+            public void setDewPoint(double dewPoint) {
+                mDewPoint = dewPoint;
+            }
+
+            public double getPressure() {
+                return mPressure;
+            }
+
+            public void setPressure(double pressure) {
+                mPressure = pressure * 0.02953;
+            }
+
+            public double getWindSpeed() {
+                return mWindSpeed;
+            }
+
+            public void setWindSpeed(double windSpeed) {
+                mWindSpeed = windSpeed;
+            }
+
+            public double getCloudCover() {
+                return mCloudCover;
+            }
+
+            public void setCloudCover(double cloudCover) {
+                mCloudCover = cloudCover;
+            }
+
+            public double getVisibility() {
+                return mVisibility;
+            }
+
+            public void setVisibility(double visibility) {
+                mVisibility = visibility;
+            }
+
+            public int getWindBearing() {
+                return mWindBearing;
+            }
+
+            public void setWindBearing(int windBearing) {
+                mWindBearing = windBearing;
             }
 
             public String getSummary() {
                 return mSummary;
             }
 
+            public void setSummary(String summary) {
+                mSummary = summary;
+            }
+
             public String getIcon() {
                 return mIcon;
             }
 
+            public void setIcon(String icon) {
+                mIcon = icon;
+            }
+
+            public String getPrecipType() {
+                return mPrecipType;
+            }
+
+            public void setPrecipType(String precipType) {
+                mPrecipType = precipType;
+            }
+
             public Date getTime() {
                 return mTime;
+            }
+
+            public void setTime(Date time) {
+                mTime = time;
             }
         }
     }
@@ -424,8 +487,28 @@ public class ForecastInfo implements Serializable{
 
         private ArrayList<Data> mData;
 
-        public Daily getInstance() {
-            return mDaily;
+        public String getSummary() {
+            return mSummary;
+        }
+
+        public void setSummary(String summary) {
+            mSummary = summary;
+        }
+
+        public String getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(String icon) {
+            mIcon = icon;
+        }
+
+        public ArrayList<Data> getData() {
+            return mData;
+        }
+
+        public void setData(ArrayList<Data> data) {
+            mData = data;
         }
 
         private Daily() {
@@ -433,45 +516,173 @@ public class ForecastInfo implements Serializable{
             for(int i = 0; i < SIZE_DAILY_DATA; i++) {
                 mData.add(i, new Data());
             }
-            Log.d(TAG, "Daily Constructor - mData.size() = " + mData.size());
         }
 
         public class Data implements Serializable{
             private double mPrecipIntensity;
             private double mPrecipProbability;
+            private double mPrecipAccumulation;
             private double mTemperatureMin;
             private double mTemperatureMax;
             private double mApparentTemperatureMin;
             private double mApparentTemperatureMax;
             private double mHumidity;
+            private double mDewPoint;
+            private double mPressure;
+            private double mWindSpeed;
+            private double mCloudCover;
+            private double mVisibility;
+
+            private int mWindBearing;
 
             private String mSummary;
             private String mIcon;
+            private String mPrecipType;
 
             private Date mTime;
 
+            public double getPrecipIntensity() {
+                return mPrecipIntensity;
+            }
+
+            public void setPrecipIntensity(double precipIntensity) {
+                mPrecipIntensity = precipIntensity;
+            }
+
+            public double getPrecipProbability() {
+                return mPrecipProbability;
+            }
+
+            public void setPrecipProbability(double precipProbability) {
+                mPrecipProbability = precipProbability;
+            }
+
+            public double getPrecipAccumulation() {
+                return mPrecipAccumulation;
+            }
+
+            public void setPrecipAccumulation(double precipAccumulation) {
+                mPrecipAccumulation = precipAccumulation;
+            }
+
             public double getTemperatureMin() {
                 return mTemperatureMin;
+            }
+
+            public void setTemperatureMin(double temperatureMin) {
+                mTemperatureMin = temperatureMin;
             }
 
             public double getTemperatureMax() {
                 return mTemperatureMax;
             }
 
+            public void setTemperatureMax(double temperatureMax) {
+                mTemperatureMax = temperatureMax;
+            }
+
+            public double getApparentTemperatureMin() {
+                return mApparentTemperatureMin;
+            }
+
+            public void setApparentTemperatureMin(double apparentTemperatureMin) {
+                mApparentTemperatureMin = apparentTemperatureMin;
+            }
+
+            public double getApparentTemperatureMax() {
+                return mApparentTemperatureMax;
+            }
+
+            public void setApparentTemperatureMax(double apparentTemperatureMax) {
+                mApparentTemperatureMax = apparentTemperatureMax;
+            }
+
             public double getHumidity() {
                 return mHumidity;
+            }
+
+            public void setHumidity(double humidity) {
+                mHumidity = humidity;
+            }
+
+            public double getDewPoint() {
+                return mDewPoint;
+            }
+
+            public void setDewPoint(double dewPoint) {
+                mDewPoint = dewPoint;
+            }
+
+            public double getPressure() {
+                return mPressure;
+            }
+
+            public void setPressure(double pressure) {
+                mPressure = pressure * 0.02953;
+            }
+
+            public double getWindSpeed() {
+                return mWindSpeed;
+            }
+
+            public void setWindSpeed(double windSpeed) {
+                mWindSpeed = windSpeed;
+            }
+
+            public double getCloudCover() {
+                return mCloudCover;
+            }
+
+            public void setCloudCover(double cloudCover) {
+                mCloudCover = cloudCover;
+            }
+
+            public double getVisibility() {
+                return mVisibility;
+            }
+
+            public void setVisibility(double visibility) {
+                mVisibility = visibility;
+            }
+
+            public int getWindBearing() {
+                return mWindBearing;
+            }
+
+            public void setWindBearing(int windBearing) {
+                mWindBearing = windBearing;
             }
 
             public String getSummary() {
                 return mSummary;
             }
 
+            public void setSummary(String summary) {
+                mSummary = summary;
+            }
+
             public String getIcon() {
                 return mIcon;
             }
 
+            public void setIcon(String icon) {
+                mIcon = icon;
+            }
+
+            public String getPrecipType() {
+                return mPrecipType;
+            }
+
+            public void setPrecipType(String precipType) {
+                mPrecipType = precipType;
+            }
+
             public Date getTime() {
                 return mTime;
+            }
+
+            public void setTime(Date time) {
+                mTime = time;
             }
         }
     }

@@ -3,35 +3,39 @@ package com.jeremyah19.android.weather;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CurrentWeatherDetailFragment extends Fragment {
-    public static final String TAG = "CWDetailFragment";
+import java.util.Calendar;
+import java.util.Date;
 
-    public static CurrentWeatherDetailFragment newInstance(ForecastInfo.Currently currently) {
+public class HourlyWeatherDetailFragment extends Fragment {
+
+    public static final String TAG = "HWDetailFragment";
+
+    public static HourlyWeatherDetailFragment newInstance(ForecastInfo.Hourly.Data data) {
         Bundle args = new Bundle();
 
-        args.putString(ForecastApiUtils.SUMMARY, currently.getSummary());
-        args.putString(ForecastApiUtils.ICON, currently.getIcon());
-        args.putString(ForecastApiUtils.PRECIP_TYPE, currently.getPrecipType());
-        args.putDouble(ForecastApiUtils.TEMPERATURE, currently.getTemperature());
-        args.putDouble(ForecastApiUtils.APPARENT_TEMPERATURE, currently.getApparentTemperature());
-        args.putDouble(ForecastApiUtils.HUMIDITY, currently.getHumidity());
-        args.putDouble(ForecastApiUtils.WIND_SPEED, currently.getWindSpeed());
-        args.putInt(ForecastApiUtils.WIND_BEARING, currently.getWindBearing());
-        args.putDouble(ForecastApiUtils.VISIBILITY, currently.getVisibility());
-        args.putDouble(ForecastApiUtils.DEW_POINT, currently.getDewPoint());
-        args.putDouble(ForecastApiUtils.CLOUD_COVER, currently.getCloudCover());
-        args.putDouble(ForecastApiUtils.PRESSURE, currently.getPressure());
-        args.putDouble(ForecastApiUtils.PRECIP_PROB, currently.getPrecipProbability());
-        args.putDouble(ForecastApiUtils.PRECIP_INTENSITY, currently.getPrecipIntensity());
+        args.putSerializable(ForecastApiUtils.TIME, data.getTime());
+        args.putString(ForecastApiUtils.SUMMARY, data.getSummary());
+        args.putString(ForecastApiUtils.ICON, data.getIcon());
+        args.putString(ForecastApiUtils.PRECIP_TYPE, data.getPrecipType());
+        args.putDouble(ForecastApiUtils.TEMPERATURE, data.getTemperature());
+        args.putDouble(ForecastApiUtils.APPARENT_TEMPERATURE, data.getApparentTemperature());
+        args.putDouble(ForecastApiUtils.HUMIDITY, data.getHumidity());
+        args.putDouble(ForecastApiUtils.WIND_SPEED, data.getWindSpeed());
+        args.putInt(ForecastApiUtils.WIND_BEARING, data.getWindBearing());
+        args.putDouble(ForecastApiUtils.VISIBILITY, data.getVisibility());
+        args.putDouble(ForecastApiUtils.DEW_POINT, data.getDewPoint());
+        args.putDouble(ForecastApiUtils.CLOUD_COVER, data.getCloudCover());
+        args.putDouble(ForecastApiUtils.PRESSURE, data.getPressure());
+        args.putDouble(ForecastApiUtils.PRECIP_PROB, data.getPrecipProbability());
+        args.putDouble(ForecastApiUtils.PRECIP_ACCUMULATION, data.getPrecipAccumulation());
 
-        CurrentWeatherDetailFragment fragment = new CurrentWeatherDetailFragment();
+        HourlyWeatherDetailFragment fragment = new HourlyWeatherDetailFragment();
         fragment.setArguments(args);
 
         return fragment;
@@ -42,8 +46,18 @@ public class CurrentWeatherDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
+        Calendar calendar = Calendar.getInstance();
+        Date date = (Date)getArguments().getSerializable(ForecastApiUtils.TIME);
+        if(date != null) {
+            calendar.setTime(date);
+        }
         if(activity.getSupportActionBar() != null) {
-            activity.getSupportActionBar().setTitle(getString(R.string.title_current_conditions));
+            activity.getSupportActionBar().setSubtitle(getString(
+                    R.string.hour_long,
+                    ForecastApiUtils.getTimeString(calendar),
+                    ForecastApiUtils.getHourString(calendar.get(Calendar.HOUR)),
+                    ForecastApiUtils.getAmPmString(calendar.get(Calendar.AM_PM))
+            ));
         }
     }
 
@@ -72,7 +86,6 @@ public class CurrentWeatherDetailFragment extends Fragment {
         precipProbTitleTextView.setText(getString(R.string.title_precipitation_probability, ForecastApiUtils.getPrecipTypeTitle(precipType)));
 
         TextView precipIntensityTitleTextView = (TextView) v.findViewById(R.id.details_precip_intensity_title_text_view);
-        precipIntensityTitleTextView.setText(getString(R.string.title_precipitation_intensity, ForecastApiUtils.getPrecipTypeTitle(precipType)));
 
         TextView temperatureTextView = (TextView) v.findViewById(R.id.details_temperature_text_view);
         temperatureTextView.setText(ForecastApiUtils.getValueString(ForecastApiUtils.TEMPERATURE, getArguments()));
@@ -86,8 +99,16 @@ public class CurrentWeatherDetailFragment extends Fragment {
         TextView precipProbTextView = (TextView) v.findViewById(R.id.details_precip_probabability_text_view);
         precipProbTextView.setText(ForecastApiUtils.getValueString(ForecastApiUtils.PRECIP_PROB, getArguments()));
 
+        String precipAccumulation = ForecastApiUtils.getValueString(ForecastApiUtils.PRECIP_ACCUMULATION, getArguments());
         TextView precipIntensityTextView = (TextView) v.findViewById(R.id.details_precip_intensity_text_view);
-        precipIntensityTextView.setText(ForecastApiUtils.getValueString(ForecastApiUtils.PRECIP_INTENSITY, getArguments()));
+        if(precipAccumulation != null && precipAccumulation.equals(ForecastApiUtils.NOT_PROVIDED)) {
+            precipIntensityTitleTextView.setText(getString(R.string.title_precipitation_intensity, ForecastApiUtils.getPrecipTypeTitle(precipType)));
+            precipIntensityTextView.setText(ForecastApiUtils.getValueString(ForecastApiUtils.PRECIP_INTENSITY, getArguments()));
+        } else {
+            precipIntensityTitleTextView.setText(getString(R.string.title_precipitation_accumulation, ForecastApiUtils.getPrecipTypeTitle(precipType)));
+            precipIntensityTextView.setText(ForecastApiUtils.getValueString(ForecastApiUtils.PRECIP_ACCUMULATION, getArguments()));
+        }
+
         if(getArguments().getDouble(ForecastApiUtils.PRECIP_PROB) == 0) {
             precipIntensityTextView.setVisibility(View.GONE);
             precipIntensityTitleTextView.setVisibility(View.GONE);

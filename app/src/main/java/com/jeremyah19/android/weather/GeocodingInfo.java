@@ -67,7 +67,7 @@ public class GeocodingInfo {
         try{
             for(int i = 0; i < array.length(); i++) {
                 JSONObject addressObject = array.getJSONObject(i);
-                String shortName = addressObject.getString("short_name");
+                String shortName = addressObject.getString("long_name");
                 switch(addressObject.getJSONArray("types").getString(0)) {
                     case "neighborhood":
                         mAddressComponents.mNeighborhood = shortName;
